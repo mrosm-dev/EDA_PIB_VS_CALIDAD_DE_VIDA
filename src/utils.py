@@ -1,6 +1,6 @@
 import pandas as pd
 
-def filtrar_columna(df, columna):
+def filtrar_columna(df:pd.DataFrame, columna:str):
     '''
     Función para dividir un Dataset, en una lista de Dataset según los valores de una columna.
     '''
