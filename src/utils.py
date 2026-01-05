@@ -73,6 +73,43 @@ def plot_todas_comunidades(df, variable, comunidades=None):
     return fig
 
 
+def plot_dual_axis(df, comunidades, var1, var2, x="año"):
+
+    for comunidad in comunidades:
+    
+        df_com = df[df["com_aut"] == comunidad].sort_values(x).copy()
+    
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+        ax2 = ax1.twinx()
+    
+        # líneas
+        l1 = ax1.plot(df_com[x], df_com[var1], marker="o", linewidth=1.5, label=var1)
+        l2 = ax2.plot(df_com[x], df_com[var2], marker="s", linewidth=1.5, label=var2)
+    
+        # labels
+        ax1.set_xlabel(x)
+        ax1.set_ylabel(var1)
+        ax2.set_ylabel(var2)
+    
+        # título
+        ax1.set_title(f"{comunidad}: {var1} vs {var2} (a lo largo del tiempo)")
+    
+        # eje X prolijo
+        ax1.set_xticks(sorted(df_com[x].unique()))
+        ax1.tick_params(axis="x", rotation=45)
+    
+        # grilla
+        ax1.grid(True, alpha=0.3)
+    
+        # leyenda combinada
+        lines = l1 + l2
+        labels = [line.get_label() for line in lines]
+        ax1.legend(lines, labels, loc="upper left")
+    
+        plt.tight_layout()
+        plt.show()
+
+
 def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.05):
     
     for comunidad in comunidades:
@@ -89,4 +126,4 @@ def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.0
         else:
             interpretacion = "No se encontró evidencia estadísticamente significativa de correlación (p ≥ 0.05)"
             
-        print(f'En {comunidad}, para las variables {variable1} y {variable2} interpretamos: {interpretacion}')
+        print(f'En {comunidad}, para las variables {variable1} y {variable2} interpretamos:\n {interpretacion}')
