@@ -31,6 +31,7 @@ def plot_com_variable(df:pd.DataFrame, comunidades:list, variables:list, tipo:st
                 plt.grid(True)
                 plt.tight_layout()
                 fig = plt.gcf()
+                plt.show()
 
         if tipo == 'barra':
             for columna in variables:
@@ -43,6 +44,7 @@ def plot_com_variable(df:pd.DataFrame, comunidades:list, variables:list, tipo:st
                 plt.grid(True)
                 plt.tight_layout()
                 fig = plt.gcf()
+                plt.show()
 
     return fig
 
@@ -112,19 +114,51 @@ def plot_dual_axis(df:pd.DataFrame, comunidades:list, var1:str, var2:str, x:str=
 
 
 def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.05):
+    print(f'Coeficiente de correlación de Spearman entre {variable1} y {variable2}\n')
+    Correlacion_positiva = []
+    Correlacion_positiva_coeficiente = []
+    Correlacion_negativa = []
+    Correlacion_negativa_coeficiente = []
+    Sin_correlacion = []
+    Sin_correlacion_coeficiente = []
+    Sin_evidencia_significativa = []
+    Sin_evidencia_pval = []
     
     for comunidad in comunidades:
         df_com = df[df["comunidad_autonoma"] == comunidad].sort_values("año")
         coef, pval = spearmanr(df_com[variable1], df_com[variable2])
+        coef = float(coef)
+        pval = float(pval)
+        umbral_coef = 0.1 
 
         if pval < alpha:
-            if coef > 0:
-                interpretacion = "correlacion positiva significativa"
-            elif coef < 0:
-                interpretacion = "correlacion negativa significativa"
-            else:
-                interpretacion = "correlacion no significativa"
-        else:
-            interpretacion = "No se encontró evidencia estadísticamente significativa de correlación (p ≥ 0.05)"
+            if abs(coef) < umbral_coef:
+                Sin_correlacion.append(comunidad)
+                Sin_correlacion_coeficiente.append(round(coef,3))
             
-        print(f'En {comunidad}, para las variables {variable1} y {variable2} interpretamos:\n {interpretacion}')
+            elif coef > 0:
+                Correlacion_positiva.append(comunidad)
+                Correlacion_positiva_coeficiente.append(round(coef,3))
+            else:
+                Correlacion_negativa.append(comunidad)
+                Correlacion_negativa_coeficiente.append(round(coef,3))
+        else:
+            Sin_evidencia_significativa.append(comunidad)
+            Sin_evidencia_pval.append(round(pval,3))
+            
+    print(f'Comunidades con correlacion positiva y sus coeficientes (pval < {alpha} y coef > 0):\n {Correlacion_positiva}\n { Correlacion_positiva_coeficiente}')
+    print('\n')
+    print(f'Comunidades con correlacion negativa y sus coeficientes (pval < {alpha} y coef < 0):\n {Correlacion_negativa}\n {Correlacion_negativa_coeficiente}')   
+    print('\n')
+    print(f'Comunidades sin correlacion y sus coeficientes (pval < {alpha} y coef ≈ 0):\n {Sin_correlacion}\n {Sin_correlacion_coeficiente}')
+    print('\n')
+    print(f'Comunidades que no se encontró evidencia estadísticamente significativa y su pval (pval > {alpha}):\n {Sin_evidencia_significativa}\n {Sin_evidencia_pval}')
+
+
+
+
+
+
+
+
+        
