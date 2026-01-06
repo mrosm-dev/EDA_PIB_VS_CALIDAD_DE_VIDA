@@ -105,7 +105,7 @@ def plot_dual_axis(df:pd.DataFrame, comunidades:list, var1:str, var2:str, x:str=
         # leyenda combinada
         lines = l1 + l2
         labels = [line.get_label() for line in lines]
-        ax1.legend(lines, labels, loc="upper left")
+        ax1.legend(lines, labels, loc="upper center")
     
         plt.tight_layout()
         plt.show()
