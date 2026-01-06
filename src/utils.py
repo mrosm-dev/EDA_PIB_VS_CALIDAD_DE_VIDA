@@ -13,9 +13,12 @@ def filtrar_columna(df:pd.DataFrame, columna:str):
     return lista_df
 
 
-def plot_com_variable(df, comunidades, variables, tipo = 'linea'):
+def plot_com_variable(df:pd.DataFrame, comunidades:list, variables:list, tipo:str='linea'):
+    '''
+    Función para graficar la línea temporal de X variables en Y comunidades autónomas.
+    '''
     for comunidad in comunidades:
-        df_com = df[df["com_aut"] == comunidad].sort_values("año")
+        df_com = df[df["comunidad_autonoma"] == comunidad].sort_values("año")
 
         if tipo == 'linea':
             for columna in variables:
@@ -28,7 +31,6 @@ def plot_com_variable(df, comunidades, variables, tipo = 'linea'):
                 plt.grid(True)
                 plt.tight_layout()
                 fig = plt.gcf()
-                plt.show()
 
         if tipo == 'barra':
             for columna in variables:
@@ -41,23 +43,22 @@ def plot_com_variable(df, comunidades, variables, tipo = 'linea'):
                 plt.grid(True)
                 plt.tight_layout()
                 fig = plt.gcf()
-                plt.show()
 
     return fig
 
 
-def plot_todas_comunidades(df, variable, comunidades=None):
+def plot_todas_comunidades(df:pd.DataFrame, variable:list, comunidades:list=None):
     """
     Un gráfico para una 'variable'(columna), con una línea por comunidad (com_aut) a lo largo de los años.
     """
     # Si no pasás lista, usa todas las comunidades del df
     if comunidades is None:
-        comunidades = sorted(df["com_aut"].dropna().unique())
+        comunidades = sorted(df["comunidad_autonoma"].dropna().unique())
 
     plt.figure(figsize=(11, 6))
 
     for com in comunidades:
-        df_com = df[df["com_aut"] == com].sort_values("año")
+        df_com = df[df["comunidad_autonoma"] == com].sort_values("año")
         plt.plot(df_com["año"], df_com[variable], marker="o", linewidth=1)
 
     plt.xlabel("Año")
@@ -73,11 +74,11 @@ def plot_todas_comunidades(df, variable, comunidades=None):
     return fig
 
 
-def plot_dual_axis(df, comunidades, var1, var2, x="año"):
+def plot_dual_axis(df:pd.DataFrame, comunidades:list, var1:str, var2:str, x:str="año"):
 
     for comunidad in comunidades:
     
-        df_com = df[df["com_aut"] == comunidad].sort_values(x).copy()
+        df_com = df[df["comunidad_autonoma"] == comunidad].sort_values(x).copy()
     
         fig, ax1 = plt.subplots(figsize=(10, 5))
         ax2 = ax1.twinx()
@@ -113,7 +114,7 @@ def plot_dual_axis(df, comunidades, var1, var2, x="año"):
 def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.05):
     
     for comunidad in comunidades:
-        df_com = df[df["com_aut"] == comunidad].sort_values("año")
+        df_com = df[df["comunidad_autonoma"] == comunidad].sort_values("año")
         coef, pval = spearmanr(df_com[variable1], df_com[variable2])
 
         if pval < alpha:
