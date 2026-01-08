@@ -52,41 +52,27 @@ def plot_com_variable(df:pd.DataFrame, comunidades:list, variables:list, tipo:st
     return fig
 
 
-def plot_todas_comunidades(df:pd.DataFrame, variable:list, comunidades:list=None):
+def plot_todas_comunidades(df: pd.DataFrame, variable: list, comunidades: list = None):
     """
-    Un gráfico para una 'variable'(columna), con una línea por comunidad (com_aut) a lo largo de los años.
+    Un gráfico para una 'variable' (columna), con una línea por comunidad (com_aut) a lo largo de los años.
     """
     if comunidades is None:
         comunidades = sorted(df["comunidad_autonoma"].dropna().unique())
 
-    plt.figure(figsize=(13, 7))
-    ax = plt.gca()
+    plt.figure(figsize=(11, 6))
 
     for com in comunidades:
         df_com = df[df["comunidad_autonoma"] == com].sort_values("año")
-        plt.plot(df_com["año"], df_com[variable], linewidth=3.5, marker="o", markersize=7 )
+        plt.plot(df_com["año"], df_com[variable], marker="o", linewidth=1)
 
-    ax.set_xlabel("Año", color="white", fontsize=16, fontweight="bold")
-    ax.set_ylabel(variable, color="white", fontsize=16, fontweight="bold")
-    ax.set_title(f"Evolución de {variable}", color="white", fontsize=20, fontweight="bold", pad=15)
-
-    ax.tick_params(axis="both", colors="white", labelsize=14, width=2)
-    ax.grid(True, alpha=0.25, color="white", linewidth=1.2)
-
-    leg = ax.legend(comunidades, bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=12, frameon=False)
-    for text in leg.get_texts():
-        text.set_color("white")
-        text.set_fontweight("bold")
+    plt.xlabel("Año")
+    plt.ylabel(variable)
+    plt.title(f"Evolución de {variable} por Comunidad Autónoma")
+    plt.grid(True)
+    plt.legend(comunidades, bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
+    plt.tight_layout()
 
     fig = plt.gcf()
-    fig.set_facecolor("#00517c")
-    ax.set_facecolor("#00517c")
-
-    for spine in ax.spines.values():
-        spine.set_color("white")
-        spine.set_linewidth(2)
-
-    plt.tight_layout()
     plt.show()
 
     return fig
