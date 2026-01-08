@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.stats import spearmanr, pearsonr
 
 def filtrar_columna(df:pd.DataFrame, columna:str):
@@ -76,41 +77,35 @@ def plot_todas_comunidades(df:pd.DataFrame, variable:list, comunidades:list=None
     return fig
 
 
-def plot_dual_axis(df:pd.DataFrame, comunidades:list, var1:str, var2:str, x:str="año"):
+def plot_dual_axis(df: pd.DataFrame, comunidades: list, var1: str, var2: str, x: str = "año"):
 
-    for comunidad in comunidades:
-    
-        df_com = df[df["comunidad_autonoma"] == comunidad].sort_values(x).copy()
-    
-        fig, ax1 = plt.subplots(figsize=(10, 5))
-        ax2 = ax1.twinx()
-    
-        # líneas
-        l1 = ax1.plot(df_com[x], df_com[var1], marker="o", linewidth=1.5, label=var1)
-        l2 = ax2.plot(df_com[x], df_com[var2], marker="s", linewidth=1.5, label=var2)
-    
-        # labels
-        ax1.set_xlabel(x)
-        ax1.set_ylabel(var1)
-        ax2.set_ylabel(var2)
-    
-        # título
-        ax1.set_title(f"{comunidad}: {var1} vs {var2} (a lo largo del tiempo)")
-    
-        # eje X prolijo
-        ax1.set_xticks(sorted(df_com[x].unique()))
-        ax1.tick_params(axis="x", rotation=45)
-    
-        # grilla
-        ax1.grid(True, alpha=0.3)
-    
-        # leyenda combinada
-        lines = l1 + l2
-        labels = [line.get_label() for line in lines]
-        ax1.legend(lines, labels, loc="upper center")
-    
-        plt.tight_layout()
-        plt.show()
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    ax2 = ax1.twinx()
+    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+    for i, comunidad in enumerate(comunidades):
+        color = colors[i % len(colors)]
+        df_com = (df[df["comunidad_autonoma"] == comunidad].sort_values(x).copy())
+        ax1.plot(df_com[x], df_com[var1], marker="o", linestyle="-", linewidth=1.8, color=color, label=f"{comunidad} – {var1}")
+        ax2.plot(df_com[x], df_com[var2], marker="s", linestyle="--", linewidth=1.8, color=color, label=f"{comunidad} – {var2}")
+
+
+    ax1.set_xlabel(x)
+    ax1.set_ylabel(var1)
+    ax2.set_ylabel(var2)
+
+    ax1.set_xticks(sorted(df[x].unique()))
+    ax1.tick_params(axis="x", rotation=45)
+
+    ax1.set_title(f"{var1} (solid) vs {var2} (dashed) – Comparativa por comunidad")
+    ax1.grid(True, alpha=0.3)
+
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper center", ncol=2)
+
+    plt.tight_layout()
+    plt.show()
 
 
 def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.05):
@@ -155,10 +150,27 @@ def correlacion_com_bivariante(df, comunidades, variable1, variable2,alpha = 0.0
     print(f'Comunidades que no se encontró evidencia estadísticamente significativa y su pval (pval > {alpha}):\n {Sin_evidencia_significativa}\n {Sin_evidencia_pval}')
 
 
+def pearson_p_matrix(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Devuelve una matriz de p-values de Pearson con la misma estructura que df.corr()
+    '''
 
+    cols = df.columns
+    p_matrix = pd.DataFrame(np.ones((len(cols), len(cols))), index=cols, columns=cols)
 
+    for i, col_i in enumerate(cols):
+        for j, col_j in enumerate(cols):
+            if i >= j:
+                x = df[col_i]
+                y = df[col_j]
+                valid = x.notna() & y.notna()
+                if valid.sum() > 2:
+                    _, p = pearsonr(x[valid], y[valid])
 
+                else:
+                    p = np.nan
 
+                p_matrix.loc[col_i, col_j] = p
+                p_matrix.loc[col_j, col_i] = p
 
-
-        
+    return p_matrix
