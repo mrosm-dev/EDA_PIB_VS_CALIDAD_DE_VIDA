@@ -92,51 +92,41 @@ def plot_todas_comunidades(df:pd.DataFrame, variable:list, comunidades:list=None
     return fig
 
 
+def plot_dual_axis(df, comunidades, var1, var2, x="año"):
 
-
-def plot_dual_axis(df: pd.DataFrame, comunidades: list, var1: str, var2: str, x: str = "año"):
-
-    fig, ax1 = plt.subplots(figsize=(13, 7))
-    fig.set_facecolor("#00517c")
-    ax1.set_facecolor("#00517c")
-    ax2 = ax1.twinx()
-
-    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-
-    for i, comunidad in enumerate(comunidades):
-        color = colors[i % len(colors)]
+    for comunidad in comunidades:
+    
         df_com = df[df["comunidad_autonoma"] == comunidad].sort_values(x).copy()
-        ax1.plot(df_com[x], df_com[var1], marker="o", linestyle="-", linewidth=3.5, markersize=7, color=color, label=f"{comunidad} – {var1}")
-        ax2.plot(df_com[x], df_com[var2], marker="s", linestyle="--", linewidth=3.5, markersize=7, color=color, label=f"{comunidad} – {var2}")
-
-    ax1.set_xlabel(x, color="white", fontsize=16, fontweight="bold")
-    ax1.set_ylabel(var1, color="white", fontsize=16, fontweight="bold")
-    ax2.set_ylabel(var2, color="white", fontsize=16, fontweight="bold")
-
-    ax1.set_xticks(sorted(df[x].unique()))
-    ax1.tick_params(axis="x", rotation=45, colors="white", labelsize=14, width=2)
-    ax1.tick_params(axis="y", colors="white", labelsize=14, width=2)
-    ax2.tick_params(axis="y", colors="white", labelsize=14, width=2)
-
-    ax1.set_title(f"{var1} (continua) vs {var2} (discontinua)", color="white", fontsize=20, fontweight="bold", pad=15)
-    ax1.grid(True, alpha=0.25, color="white", linewidth=1.2)
-
-    for spine in ax1.spines.values():
-        spine.set_color("white")
-        spine.set_linewidth(2)
-    for spine in ax2.spines.values():
-        spine.set_color("white")
-        spine.set_linewidth(2)
-
-    lines_1, labels_1 = ax1.get_legend_handles_labels()
-    lines_2, labels_2 = ax2.get_legend_handles_labels()
-    leg = ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper center", ncol=2, fontsize=12, frameon=False)
-    for text in leg.get_texts():
-        text.set_color("white")
-        text.set_fontweight("bold")
-
-    plt.tight_layout()
-    plt.show()
+    
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+        ax2 = ax1.twinx()
+    
+        # líneas
+        l1 = ax1.plot(df_com[x], df_com[var1], marker="o", linewidth=1.5, label=var1)
+        l2 = ax2.plot(df_com[x], df_com[var2], marker="s", linewidth=1.5, label=var2)
+    
+        # labels
+        ax1.set_xlabel(x)
+        ax1.set_ylabel(var1)
+        ax2.set_ylabel(var2)
+    
+        # título
+        ax1.set_title(f"{comunidad}: {var1} vs {var2} (a lo largo del tiempo)")
+    
+        # eje X prolijo
+        ax1.set_xticks(sorted(df_com[x].unique()))
+        ax1.tick_params(axis="x", rotation=45)
+    
+        # grilla
+        ax1.grid(True, alpha=0.3)
+    
+        # leyenda combinada
+        lines = l1 + l2
+        labels = [line.get_label() for line in lines]
+        ax1.legend(lines, labels, loc="upper left")
+    
+        plt.tight_layout()
+        plt.show()
 
 
 
